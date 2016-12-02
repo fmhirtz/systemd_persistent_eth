@@ -26,12 +26,15 @@
 #  Author: Kyle Walker <kwalker@redhat.com>
 #
 #  ChangeLog:
-#   * Wed Sep 21 - Frank Hirtz <frankh@redhat.com>
+#   * Fri Dec 02 2016 - Frank Hirtz <frankh@redhat.com>
+#       - Add network.service to systemd "Before" target to avoid the network
+#         from starting while the script is running
+#   * Wed Sep 21 2016 - Frank Hirtz <frankh@redhat.com>
 #       - Change systemd target to accomodate hosts which aren't running 
 #         NetworkManager
 #       - Fix filter so we don't pull in infiniband interfaces
 #       - Fix VLAN detection (Add look for '.' as a valid name)
-#   * Wed Jul 4 - Kyle Walker <kwalker@redhat.com>
+#   * Wed Jul 04 2016 - Kyle Walker <kwalker@redhat.com>
 #     Initial release
 #
 # Requires:
@@ -57,7 +60,7 @@ version = '0.2'
 INSTALL = """
 [Unit]
 Description=Persistently name interfaces to the ethN naming convention
-Before=network-online.target
+Before=network-online.target network.service
 
 [Service]
 Type=oneshot

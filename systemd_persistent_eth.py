@@ -30,6 +30,8 @@
 #       - Add filter to remove quotes from naming keys
 #       - Fix assignment comparison
 #       - Fix assigned counter
+#       - Add simple check for ifcfg-eth* files that don't specify HWADDR 
+#         to avoid errors
 #   * Fri Dec 02 2016 - Frank Hirtz <frankh@redhat.com>
 #       - Add network.service to systemd "Before" target to avoid the network
 #         from starting while the script is running
@@ -219,15 +221,15 @@ def get_config():
 
 def assign_interface(interface, configs):
     worked = 0
-
-    for entry in configs.keys():
-        if interface[0] in configs[entry]['HWADDR']:
-            if 'DEVICE' in configs[entry].keys():
-                link_name_change(0, interface[2], configs[entry]['DEVICE'].lower())
-                worked = 1
-            elif 'NAME' in configs[entry].keys():
-                link_name_change(0, interface[2], configs[entry]['NAME'].lower())
-                worked = 1
+      for entry in configs.keys():
+          if 'HWADDR' in configs[entry]:
+                  if interface[0] in configs[entry]['HWADDR']:
+                      if 'DEVICE' in configs[entry].keys():
+                          link_name_change(0, interface[2], configs[entry]['DEVICE'].lower())
+                          worked = 1
+                      elif 'NAME' in configs[entry].keys():
+                          link_name_change(0, interface[2], configs[entry]['NAME'].lower())
+                          worked = 1
 
     return worked
 

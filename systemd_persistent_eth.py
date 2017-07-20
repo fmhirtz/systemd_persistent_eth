@@ -221,7 +221,7 @@ def get_config():
 
 def assign_interface(interface, configs):
     worked = 0
-      for entry in configs.keys():
+    for entry in configs.keys():
           if 'HWADDR' in configs[entry]:
                   if interface[0] in configs[entry]['HWADDR']:
                       if 'DEVICE' in configs[entry].keys():

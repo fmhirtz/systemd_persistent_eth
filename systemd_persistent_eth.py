@@ -155,6 +155,10 @@ def get_interface_dict():
     return interfaces
 
 def link_name_change(idx, entry, dest=None):
+    # Let's remove any quotes around the requested name
+    entry = re.sub(r'^"|"$', '', entry)
+    if dest != None:
+	dest  = re.sub(r'^"|"$', '', dest)
     ip_proc = Popen(['ip', 'link', 'set', 'dev', entry, 'down'])
     ip_proc.wait()
 
@@ -210,20 +214,21 @@ def get_config():
     return parsed_entries
 
 def assign_interface(interface, configs):
-    named = 0
+    worked = 0
 
     for entry in configs.keys():
-        if configs[entry]['HWADDR'] in interface[0]:
+        if interface[0] in configs[entry]['HWADDR']:
             if 'DEVICE' in configs[entry].keys():
                 link_name_change(0, interface[2], configs[entry]['DEVICE'].lower())
-                named += 1
+                worked = 1
             elif 'NAME' in configs[entry].keys():
                 link_name_change(0, interface[2], configs[entry]['NAME'].lower())
-                named += 1
+                worked = 1
 
-    return named
+    return worked
 
 def main():
+    success = 0
     print('Gathering previous name association')
 
     interfaces = get_interface_dict()
@@ -238,8 +243,9 @@ def main():
 
     print('Applying names from HWADDR flags in configuration files')
     for interface_entry in interfaces.keys():
-        success = assign_interface(interfaces[interface_entry], configs)
-
+        worked = assign_interface(interfaces[interface_entry], configs)
+	if worked:
+		success += 1
     unnamed = len(interfaces.keys()) - success
     print('%d Assigned, %d Unnamed:' %(success, unnamed))
     interfaces = get_interface_dict()

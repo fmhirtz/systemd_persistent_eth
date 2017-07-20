@@ -26,6 +26,10 @@
 #  Author: Kyle Walker <kwalker@redhat.com>
 #
 #  ChangeLog:
+#   * Thu Jul 20 2017 - Frank Hirtz <frankh@redhat.com>
+#       - Add filter to remove quotes from naming keys
+#       - Fix assignment comparison
+#       - Fix assigned counter
 #   * Fri Dec 02 2016 - Frank Hirtz <frankh@redhat.com>
 #       - Add network.service to systemd "Before" target to avoid the network
 #         from starting while the script is running
@@ -55,7 +59,7 @@ import argparse
 from subprocess import Popen, PIPE
 from glob import glob
 
-version = '0.2'
+version = '0.3'
 
 INSTALL = """
 [Unit]

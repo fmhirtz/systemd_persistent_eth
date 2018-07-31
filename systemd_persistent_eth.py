@@ -26,6 +26,9 @@
 #  Author: Kyle Walker <kwalker@redhat.com>
 #
 #  ChangeLog:
+#   * Tue Jul 31 2018 - Frank Hirtz <frankh@redhat.com> - 0.4
+#        - Add filter for 'bond' devices
+#        - Avoid reassigning bond "slave" devices
 #   * Thu Jul 20 2017 - Frank Hirtz <frankh@redhat.com>
 #       - Add filter to remove quotes from naming keys
 #       - Fix assignment comparison
@@ -61,7 +64,7 @@ import argparse
 from subprocess import Popen, PIPE
 from glob import glob
 
-version = '0.3'
+version = '0.4'
 
 INSTALL = """
 [Unit]
@@ -148,14 +151,14 @@ def get_interface_dict():
             split_line = [ entry.rstrip(':') for entry in line.split()]
             if not idx % 2:    # Will be lines that have a device identifier
                 interface = split_line[1].strip()
-                connection = None if 'LOWER_UP' not in line else True
+                connection = None if 'SLAVE' in line or 'LOWER_UP' not in line else True
             else:
                 hwaddr = split_line[1].upper().strip()
                 print("%15s: %s%s" %(interface, hwaddr, '' if not connection else ' - UP'))
                 interfaces[interface] = hwaddr,connection,interface
 
         for key, value in interfaces.copy().iteritems(): # Filter out infiniband interfaces
-                if key.startswith('ib'):
+                if key.startswith('ib') or key.startswith('bond'):
                         interfaces.pop(key, None)
 
     return interfaces

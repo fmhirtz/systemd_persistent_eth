@@ -26,6 +26,8 @@
 #  Author: Kyle Walker <kwalker@redhat.com>
 #
 #  ChangeLog:
+#   * Thu Aug 02 2018 - Frank Hirtz <frankh@redhat.com> - 0.5
+#        - Correct bond "slave" interface exclusion logic
 #   * Tue Jul 31 2018 - Frank Hirtz <frankh@redhat.com> - 0.4
 #        - Add filter for 'bond' devices
 #        - Avoid reassigning bond "slave" devices
@@ -64,7 +66,7 @@ import argparse
 from subprocess import Popen, PIPE
 from glob import glob
 
-version = '0.4'
+version = '0.5'
 
 INSTALL = """
 [Unit]
@@ -151,14 +153,15 @@ def get_interface_dict():
             split_line = [ entry.rstrip(':') for entry in line.split()]
             if not idx % 2:    # Will be lines that have a device identifier
                 interface = split_line[1].strip()
-                connection = None if 'SLAVE' in line or 'LOWER_UP' not in line else True
+                connection = None if 'LOWER_UP' not in line else True
+                slave = None if 'SLAVE' not in line else True
             else:
                 hwaddr = split_line[1].upper().strip()
                 print("%15s: %s%s" %(interface, hwaddr, '' if not connection else ' - UP'))
-                interfaces[interface] = hwaddr,connection,interface
+                interfaces[interface] = hwaddr,connection,interface,slave
 
         for key, value in interfaces.copy().iteritems(): # Filter out infiniband interfaces
-                if key.startswith('ib') or key.startswith('bond'):
+                if key.startswith('ib') or key.startswith('bond') or value[3]:
                         interfaces.pop(key, None)
 
     return interfaces

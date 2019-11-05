@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 #  Copyright (C) 2016 Kyle Walker <walker.kyle.t@gmail.com>
 #
@@ -144,7 +144,8 @@ def install():
 def get_interface_dict():
     interfaces = {}
 
-    ip_output = Popen(['ip', 'link', 'show'], stdout=PIPE)
+    ip_output = Popen(['ip', 'link', 'show'], stdout=PIPE,
+                      universal_newlines=True)
     ip_output.wait()
 
     for idx, line in enumerate(ip_output.stdout):
@@ -159,7 +160,7 @@ def get_interface_dict():
                 print("%15s: %s%s" % (interface, hwaddr, '' if not connection else ' - UP'))
                 interfaces[interface] = hwaddr, connection, interface, slave
 
-        for key, value in interfaces.copy().iteritems():  # Filter out infiniband interfaces
+        for key, value in interfaces.copy().items():  # Filter out infiniband interfaces
                 if key.startswith('ib') or key.startswith('bond') or value[3]:
                         interfaces.pop(key, None)
 
